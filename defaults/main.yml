@@ -1,0 +1,47 @@
+---
+utils: "share-certificates"
+
+# Utils: share-certificates
+
+fetch:
+  enabled: false
+  ca: false
+  elasticsearch: false
+  logstash: false
+copy: 
+  enabled: false
+  ca: false
+  elasticsearch: false
+  logstash: false
+
+ca:
+  dir: /opt/private/ssl
+  cert:
+    file: "elastic-CA.crt"
+  key:
+    file: "elastic-CA.key"
+  dest: /path/to/dest
+
+elasticsearch:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "elasticsearch-certificates.zip"
+  dest_dir: /etc/elasticsearch
+
+logstash:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "logstash-certificates.zip"
+  dest_dir: /etc/logstash
+
+kibana:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "kibana-certificates.zip"
+  dest_dir: /etc/kibana
+
+node:
+  name: "test-node"
+
+# component: < elasticsearch | logstash | kibana >
+component: elasticsearch

@@ -1,0 +1,36 @@
+---
+# CA
+- name: "Ship the CA to {{ inventory_hostname }}"
+  copy:
+    src: "{{ playbook_dir }}/files/{{ item }}"
+    dest: "/etc/{{ component }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  loop:
+  - "{{ ca.cert.file }}"
+  - "{{ ca.key.file }}"
+  when: copy.ca
+
+# ES cert
+- name: "Copy {{ inventory_hostname }} certificate to /etc/elasticsearch/{{ node.name }}.p12"
+  copy:
+    src: "{{ playbook_dir }}/files/{{ node.name }}/{{ node.name }}.p12"
+    dest: "/etc/elasticsearch/{{ node.name }}.p12"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  when: "copy.elasticsearch and component == 'elasticsearch'"
+
+# LGS cert
+- name: "Copy {{ inventory_hostname }} certificate to /etc/logstash/{{ node.name }}.p12"
+  copy:
+    src: "{{ playbook_dir }}/files/{{ node.name }}/{{ node.name }}.p12"
+    dest: "/etc/logstash/{{ node.name }}.p12"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  when: "copy.logstash and component == 'logstash'"

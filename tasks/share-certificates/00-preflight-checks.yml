@@ -1,0 +1,69 @@
+---
+- name: "End the play for hosts that do not run CentOS or RHEL"
+  meta: end_host
+  when:
+  - ansible_distribution != 'CentOS' and ansible_distribution != 'RedHat' 
+
+- name: "Check if the CA certificate exist"
+  stat:
+    path: "{{ ca.dir }}/{{ ca.cert.file }}"
+  register: ca_cert_exists
+  ignore_errors: true
+
+- name: "Check if the CA key exist"
+  stat:
+    path: "{{ ca.dir }}/{{ ca.key.file }}"
+  register: ca_key_exists
+  ignore_errors: true
+
+- name: "End the play if the CA certificate does not exists on {{ inventory_hostname }}"
+  fail: 
+    msg: "CA certificate does not exist"
+  when: "not ca_cert_exists.stat.exists and not ca.fetch"
+
+- name: "End the play if the CA key does not exists on {{ inventory_hostname }}"
+  fail: 
+    msg: "CA key does not exist"
+  when: "not ca_key_exists.stat.exists and not ca.fetch"
+
+- name: "Ensure that for component elasticsearch, /etc/elasticsearch is present"
+  when: "component == 'elasticsearch'"
+  block:
+  - name: "Check if /etc/elasticsearch is present"
+    stat:
+      path: /etc/elasticsearch
+    register: is_elasticsearch
+    ignore_errors: true
+
+  - name: "End the play if the component elasticsearch and /etc/elasticsearch not present"
+    fail: 
+      msg: "This host is not elasticsearch"
+    when: not is_elasticsearch.stat.isdir
+
+- name: "Ensure that for component logstash, /etc/logstash is present"
+  when: "component == 'logstash'"
+  block:
+  - name: "Check if /etc/logstash is present"
+    stat:
+      path: /etc/logstash
+    register: is_logstash
+    ignore_errors: true
+
+  - name: "End the play if the component logstash and /etc/logstash not present"
+    fail: 
+      msg: "This host is not logstash"
+    when: not is_logstash.stat.isdir
+
+- name: "Ensure that for component kibana, /etc/kibana is present"
+  when: "component == 'kibana'"
+  block:
+  - name: "Check if /etc/kibana is present"
+    stat:
+      path: /etc/kibana
+    register: is_kibana
+    ignore_errors: true
+
+  - name: "End the play if the component kibana and /etc/kibana not present"
+    fail: 
+      msg: "This host is not kibana"
+    when: not is_kibana.stat.isdir

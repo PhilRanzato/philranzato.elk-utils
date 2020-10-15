@@ -1,0 +1,15 @@
+---
+- name: "Share Certificates"
+  when: "utils == 'share-certificates'"
+  block:
+  - name: "Preflight Checks"
+    include_tasks: "share-certificates/00-preflight-checks.yml"
+    when: fetch.enabled and utils
+
+  - name: "Fetch certificates from Elasticsearch primary master"
+    include_tasks: "share-certificates/01-fetch.yml"
+    when: fetch.enabled
+
+  - name: "Copy certificates"
+    include_tasks: "share-certificates/02-copy.yml"
+    when: copy.enabled

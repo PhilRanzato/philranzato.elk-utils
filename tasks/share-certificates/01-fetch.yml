@@ -1,0 +1,51 @@
+---
+# CA
+- name: "Ensure files directory exists on the Ansible master"
+  local_action:
+    module: file
+    path: "{{ playbook_dir }}/files"
+    state: directory
+  when: fetch.ca
+
+- name: "Fetch the CA certificate and key"
+  fetch:
+    src: "{{ ca.dir }}/{{ item }}"
+    dest: "{{ playbook_dir }}/files/{{ item }}"
+    flat: yes
+  become: true
+  loop:
+  - "{{ ca.cert.file }}"
+  - "{{ ca.key.file }}"
+  when: fetch.ca
+
+# ES certs
+- name: "Fetch Elasticsearch masters certificate"
+  fetch:
+    src: "{{ elasticsearch.src.dir }}/{{ elasticsearch.src.file }}"
+    dest: "{{ playbook_dir }}/files/{{ elasticsearch.src.file }}"
+    flat: yes
+  become: true
+  when: fetch.elasticsearch
+
+- name: "Unarchive certificates"
+  local_action:
+    module: unarchive
+    src: "{{ playbook_dir }}/files/{{ elasticsearch.src.file }}"
+    dest: "{{ playbook_dir }}/files/"
+  when: fetch.elasticsearch
+
+# LGS certs
+- name: "Fetch Logstash certificates"
+  fetch:
+    src: "{{ logstash.src.dir }}/{{ logstash.src.file }}"
+    dest: "{{ playbook_dir }}/files/{{ logstash.src.file }}"
+    flat: yes
+  become: true
+  when: fetch.logstash
+
+- name: "Unarchive certificates"
+  local_action:
+    module: unarchive
+    src: "{{ playbook_dir }}/files/{{ logstash.src.file }}"
+    dest: "{{ playbook_dir }}/files/"
+  when: fetch.logstash

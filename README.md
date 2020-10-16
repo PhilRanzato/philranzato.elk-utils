@@ -1,38 +1,112 @@
-Role Name
+pllr.elk-utils
 =========
 
-A brief description of the role goes here.
+This role serves as utility functions for the elk stack configuration
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- A CA certificate and key must be on the remote host when setting the respective parameter.
+- Elasticsearch certificates must be on the remote host when setting the respective parameter.
+- Logstash certificates must be on the remote host when setting the respective parameter.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+
+```yaml
+---
+# selector for the utils to run
+utils: "share-certificates"
+
+# Utils: share-certificates
+
+# enables fetching of specified certificates
+fetch:
+  enabled: false
+  ca: false
+  elasticsearch: false
+  logstash: false
+# enables copying of specified certificates
+copy: 
+  enabled: false
+  ca: false
+  elasticsearch: false
+  logstash: false
+
+# CA locations and destination on remote host
+ca:
+  dir: /opt/private/ssl
+  cert:
+    file: "elastic-CA.crt"
+  key:
+    file: "elastic-CA.key"
+  # used only when copying
+  dest: /path/to/dest
+
+# Elasticsearch .zip certificates location and destination on remote host 
+elasticsearch:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "elasticsearch-certificates.zip"
+  dest_dir: /etc/elasticsearch
+
+# Logstash .zip certificates location and destination on remote host 
+logstash:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "logstash-certificates.zip"
+  dest_dir: /etc/logstash
+
+# Kibana .zip certificates location and destination on remote host 
+kibana:
+  src:
+    dir: "{{ ca.dir }}"
+    file: "kibana-certificates.zip"
+  dest_dir: /etc/kibana
+
+# The node name in the elasticsearch cluster
+node:
+  name: "test-node"
+
+# Use it as group variables for each group (elasticsearch masters, logstash instances and kibana instances)
+# component: < elasticsearch | logstash | kibana >
+component: elasticsearch
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yaml
+---
+- name: "Fetch certificates"
+  hosts: elasticsearch_primary_master
+  roles:
+  - { role: pllr.elk-utils }
+  vars_files:
+  - vars/fetch.yml
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- name: "Copy certificates and keys to all hosts"
+  hosts: all:!localhost
+  roles:
+  - { role: pllr.elk-utils }
+  vars_files:
+  - vars/copy.yml
+  # Needed if you want to see the correct host in the task name
+  serial: 1
+```
 
 License
 -------
 
-BSD
+Apache-2.0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Check me on [LinkedIn](www.linkedin.com/in/phil-ranzato-47b8bb194)

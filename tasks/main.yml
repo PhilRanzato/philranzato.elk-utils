@@ -1,4 +1,11 @@
 ---
+- name: "Install unzip on the ansible master"
+  local_action:
+    module: yum
+    name: unzip
+    state: latest
+  become: true
+
 - name: "Share Certificates"
   when: "utils == 'share-certificates'"
   block:

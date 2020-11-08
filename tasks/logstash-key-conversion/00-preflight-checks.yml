@@ -1,0 +1,27 @@
+---
+- name: "End the play for hosts that do not run CentOS or RHEL"
+  meta: end_host
+  when:
+  - ansible_distribution != 'CentOS' and ansible_distribution != 'RedHat' 
+
+- name: "Check if the Logstash Server certificate exist"
+  stat:
+    path: "{{ logstash_server_certificates.dir }}/{{ logstash_server_certificates.cert.file }}.{{ logstash_server_certificates.cert.extension }}"
+  register: logstash_server_certificates_cert_exists
+  ignore_errors: true
+
+- name: "Check if the Logstash Server key exist"
+  stat:
+    path: "{{ logstash_server_certificates.dir }}/{{ logstash_server_certificates.key.file }}.{{ logstash_server_certificates.key.extension }}"
+  register: logstash_server_certificates_key_exists
+  ignore_errors: true
+
+- name: "End the play if the Logstash Server certificate does not exists on {{ inventory_hostname }}"
+  fail: 
+    msg: "Logstash Server certificate does not exist"
+  when: not logstash_server_certificates_cert_exists.stat.exists
+
+- name: "End the play if the CA key does not exists on {{ inventory_hostname }}"
+  fail: 
+    msg: "CA key does not exist"
+  when: not logstash_server_certificates_key_exists.stat.exists

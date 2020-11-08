@@ -1,8 +1,8 @@
 ---
+# utils: share-certificates | logstash-key-conversion
 utils: "share-certificates"
 
-# Utils: share-certificates
-
+###### utils: share-certificates
 fetch:
   enabled: false
   ca: false
@@ -45,3 +45,18 @@ node:
 
 # component: < elasticsearch | logstash | kibana >
 component: elasticsearch
+
+
+##### utils: logstash-key-conversion
+logstash_server_certificates:
+  dir: /etc/logstash
+  cert:
+    file: "logstash-server"
+    extension: "crt"
+  key:
+    file: "logstash-server"
+    extension: "key"
+    pass: "P4ssword!"
+    owner: root
+    group: logstash
+    mode: "0640"

@@ -1,0 +1,18 @@
+---
+- name: "Convert key in the format expected by Logstash (pkcs8)"
+  shell: |
+    openssl pkcs8 \
+    -in {{ logstash_server_certificates.dir }}/{{ logstash_server_certificates.key.file }}.{{ logstash_server_certificates.key.extension }} \
+    -topk8 \
+    -out {{ logstash_server_certificates.dir }}/{{ logstash_server_certificates.key.file }}-pkcs8.{{ logstash_server_certificates.key.extension }} \
+    -passin pass:'{{ logstash_server_certificates.key.pass }}' \
+    -passout pass:'{{ logstash_server_certificates.key.pass }}'
+  become: true
+
+- name: "Ensure that the converted key has the right permissions"
+  file:
+    path: "{{ logstash_server_certificates.dir }}/{{ logstash_server_certificates.key.file }}-pkcs8.{{ logstash_server_certificates.key.extension }}"
+    owner: "{{ logstash_server_certificates.key.owner }}"
+    group: "{{ logstash_server_certificates.key.group }}"
+    mode: "{{ logstash_server_certificates.key.mode }}"
+  become: true

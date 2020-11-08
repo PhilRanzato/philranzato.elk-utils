@@ -1,11 +1,4 @@
 ---
-- name: "Install unzip on the ansible master"
-  local_action:
-    module: yum
-    name: unzip
-    state: latest
-  become: true
-
 - name: "Share Certificates"
   when: "utils == 'share-certificates'"
   block:
@@ -20,3 +13,12 @@
   - name: "Copy certificates"
     include_tasks: "share-certificates/02-copy.yml"
     when: copy.enabled
+
+- name: "Convert Logstash server key into pkcs#8"
+  when: "utils == 'logstash-key-conversion'"
+  block:
+  - name: "Preflight Checks"
+    include_tasks: "logstash-key-conversion/00-preflight-checks.yml"
+
+  - name: "Convert Key"
+    include_tasks: "logstash-key-conversion/01-convert.yml"

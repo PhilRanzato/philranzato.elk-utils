@@ -1,4 +1,4 @@
-pllr.elk-utils
+philranzato.elk-utils
 =========
 
 This role serves as utility functions for the elk stack configuration
@@ -17,6 +17,7 @@ Role Variables
 ```yaml
 ---
 # selector for the utils to run
+# utils: share-certificates | logstash-key-conversion
 utils: "share-certificates"
 
 # Utils: share-certificates
@@ -72,6 +73,22 @@ node:
 # Use it as group variables for each group (elasticsearch masters, logstash instances and kibana instances)
 # component: < elasticsearch | logstash | kibana >
 component: elasticsearch
+
+##### utils: logstash-key-conversion
+logstash_server_certificates:
+  dir: /etc/logstash
+  cert:
+    file: "logstash-server"
+    # extension of logstash_server_certificates.cert.file
+    extension: "crt"
+  key:
+    file: "logstash-server"
+    # extension of logstash_server_certificates.key.file
+    extension: "key"
+    pass: "P4ssword!"
+    owner: root
+    group: logstash
+    mode: "0640"
 ```
 
 Dependencies
@@ -99,12 +116,19 @@ Example Playbook
   - vars/copy.yml
   # Needed if you want to see the correct host in the task name
   serial: 1
+
+- name: "Convert Logstash key to PKCS8"
+  hosts: elasticsearch_primary_master
+  roles:
+  - { role: pllr.elk-utils }
+  vars_files:
+  - vars/convert.yml
 ```
 
 License
 -------
 
-Apache-2.0
+MIT
 
 Author Information
 ------------------

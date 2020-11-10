@@ -26,6 +26,13 @@
     msg: "CA key does not exist"
   when: "not ca_key_exists.stat.exists and not ca.fetch"
 
+- name: "Ensure unzip is present the ansible master"
+  local_action:
+    module: yum
+    name: unzip
+    state: latest
+  become: true
+
 - name: "Ensure that for component elasticsearch, /etc/elasticsearch is present"
   when: "component == 'elasticsearch'"
   block:
